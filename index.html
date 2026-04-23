@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visitas Técnicas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --surface2: #EFEDE8;
+    --border: #E2DFD8;
+    --border2: #CCC9C0;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9C9A94;
+    --accent: #2D5BE3;
+    --accent-bg: #EBF0FD;
+    --green: #1A7A4A;
+    --green-bg: #E6F5ED;
+    --amber: #7A4F00;
+    --amber-bg: #FFF3D6;
+    --red: #9B2424;
+    --red-bg: #FDE8E8;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: var(--text);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 16px; height: 16px; }
+  .logo-text { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .mode-pill {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .mode-btn {
+    padding: 4px 14px;
+    border-radius: 16px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .mode-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .btn-add {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 16px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn-add:hover { opacity: .85; }
+  .btn-add svg { width: 14px; height: 14px; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    padding: 1.25rem 2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 320px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
+  .search-wrap input {
+    width: 100%; padding: 7px 10px 7px 32px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface); font-family: inherit; font-size: 13px;
+    color: var(--text); outline: none;
+    transition: border-color .15s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .f-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface);
+    font-family: inherit; font-size: 12px; font-weight: 500;
+    color: var(--text2);
+    cursor: pointer; transition: all .15s;
+    white-space: nowrap;
+  }
+  .f-btn:hover { border-color: var(--border2); color: var(--text); }
+  .f-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .select-filter {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: inherit; font-size: 12px;
+    color: var(--text2); cursor: pointer; outline: none;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    padding: 1rem 2rem;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 10px;
+    min-width: 130px;
+  }
+  .stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .stat-info { }
+  .stat-num { font-size: 18px; font-weight: 600; line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── GRID VIEW ── */
+  .main { padding: 1rem 2rem 3rem; }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem;
+    transition: box-shadow .15s, transform .1s;
+    cursor: default;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); transform: translateY(-1px); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .tecnico-row { display: flex; align-items: center; gap: 9px; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+  .av-0 { background: #E8E3FB; color: #4A3BA8; }
+  .av-1 { background: #D6F0E8; color: #1A6E50; }
+  .av-2 { background: #FDE8D8; color: #8A3A18; }
+  .av-3 { background: #D8EAF8; color: #1A4E88; }
+  .av-4 { background: #F8E8D8; color: #8A5018; }
+  .av-5 { background: #E8F8D8; color: #3A6818; }
+  .tec-name { font-size: 13px; font-weight: 600; }
+  .tec-tipo { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  .estado-badge {
+    font-size: 11px; font-weight: 500; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .s-hoy { background: var(--accent-bg); color: var(--accent); }
+  .s-pendiente { background: var(--amber-bg); color: var(--amber); }
+  .s-completado { background: var(--green-bg); color: var(--green); }
+  .s-urgente { background: var(--red-bg); color: var(--red); }
+
+  .card-fields { display: flex; flex-direction: column; gap: 7px; }
+  .field-row { display: flex; gap: 8px; align-items: flex-start; }
+  .field-icon { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; color: var(--text3); }
+  .field-val { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .field-val.muted { color: var(--text2); }
+  .machine-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 9px;
+    font-size: 11px; color: var(--text2); font-family: 'DM Mono', monospace;
+  }
+  .nota-box {
+    background: var(--surface2); border-left: 2px solid var(--border2);
+    border-radius: 0 6px 6px 0; padding: 6px 10px;
+    font-size: 12px; color: var(--text2); font-style: italic; margin-top: 4px;
+  }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .fecha-txt { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .card-actions { display: flex; gap: 6px; }
+  .btn-sm {
+    padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; font-family: inherit; font-size: 11px; font-weight: 500;
+    color: var(--text2); cursor: pointer; transition: all .12s;
+  }
+  .btn-sm:hover { background: var(--surface2); color: var(--text); }
+  .btn-done { border-color: #9FD8BB; color: var(--green); background: var(--green-bg); }
+  .btn-done:hover { background: #C8EDD8; }
+  .btn-del { border-color: #F0B8B8; color: var(--red); }
+  .btn-del:hover { background: var(--red-bg); }
+
+  /* ── LIST VIEW ── */
+  .list-table { width: 100%; border-collapse: collapse; }
+  .list-table th {
+    text-align: left; font-size: 11px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase; letter-spacing: .05em;
+    padding: 0 12px 10px; border-bottom: 1px solid var(--border);
+  }
+  .list-table td {
+    padding: 11px 12px; border-bottom: 1px solid var(--border);
+    font-size: 13px; vertical-align: middle;
+  }
+  .list-table tr:hover td { background: var(--surface2); }
+  .list-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+
+  /* ── EMPTY ── */
+  .empty { text-align: center; padding: 3rem; color: var(--text3); font-size: 14px; grid-column: 1/-1; }
+
+  /* ── MODAL ── */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,13,10,.45); z-index: 200;
+    align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    width: 100%; max-width: 500px;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .modal-title { font-size: 16px; font-weight: 600; }
+  .btn-close { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 20px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+  .btn-close:hover { background: var(--surface2); color: var(--text); }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-full { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 8px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    font-family: inherit; font-size: 13px; color: var(--text);
+    outline: none; transition: border-color .15s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); background: var(--surface); }
+  .form-group textarea { resize: vertical; min-height: 64px; }
+
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .btn-cancel {
+    padding: 8px 20px; border-radius: var(--radius); border: 1px solid var(--border);
+    background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+    color: var(--text2); cursor: pointer;
+  }
+  .btn-cancel:hover { background: var(--surface2); }
+  .btn-save {
+    padding: 8px 22px; border-radius: var(--radius); border: none;
+    background: var(--text); color: #fff; font-family: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .btn-save:hover { opacity: .85; }
+
+  /* ── CONFIRM ── */
+  .confirm-box {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,13,10,.45); z-index: 300;
+    align-items: center; justify-content: center;
+  }
+  .confirm-box.open { display: flex; }
+  .confirm-inner {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 1.5rem; max-width: 340px;
+    animation: slideUp .15s ease;
+  }
+  .confirm-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .confirm-msg { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; }
+  .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-confirm-del {
+    padding: 7px 18px; border-radius: var(--radius); border: none;
+    background: var(--red); color: #fff; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(60px);
+    background: var(--text); color: #fff; padding: 10px 20px;
+    border-radius: 20px; font-size: 13px; font-weight: 500;
+    z-index: 400; opacity: 0; transition: all .3s;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── ADMIN LOCK ── */
+  .admin-toggle {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--text3);
+  }
+  .switch {
+    position: relative; width: 32px; height: 18px;
+    display: inline-block;
+  }
+  .switch input { display: none; }
+  .slider {
+    position: absolute; inset: 0; background: var(--border2);
+    border-radius: 10px; cursor: pointer; transition: background .2s;
+  }
+  .slider:before {
+    content: ''; position: absolute;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #fff; top: 3px; left: 3px;
+    transition: transform .2s;
+  }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider:before { transform: translateX(14px); }
+
+  .admin-only { display: none; }
+  body.admin-mode .admin-only { display: inline-flex; }
+  body.admin-mode .btn-add { display: flex; }
+  body:not(.admin-mode) .btn-add { display: none; }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 0 1rem; }
+    .toolbar, .stats-bar, .main { padding-left: 1rem; padding-right: 1rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-full { grid-column: 1; }
+    .topbar-right .admin-toggle span { display: none; }
+    .mode-pill { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 12L8 3l6 9H2z" fill="white" opacity=".9"/>
+        <circle cx="8" cy="11.5" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Servicio Técnico</div>
+      <div class="logo-sub">Panel de visitas</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="mode-pill">
+      <button class="mode-btn active" onclick="setVista('grid',this)">Tarjetas</button>
+      <button class="mode-btn" onclick="setVista('list',this)">Lista</button>
+    </div>
+    <label class="admin-toggle">
+      <span>Modo admin</span>
+      <label class="switch">
+        <input type="checkbox" id="adminToggle" onchange="toggleAdmin(this)">
+        <span class="slider"></span>
+      </label>
+    </label>
+    <button class="btn-add admin-only" onclick="abrirModal()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Nueva visita
+    </button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar cliente, técnico, máquina..." oninput="render()">
+  </div>
+  <div class="filters">
+    <button class="f-btn active" onclick="setFiltro('todos',this)">Todas</button>
+    <button class="f-btn" onclick="setFiltro('hoy',this)">Hoy</button>
+    <button class="f-btn" onclick="setFiltro('pendiente',this)">Pendientes</button>
+    <button class="f-btn" onclick="setFiltro('completado',this)">Completadas</button>
+  </div>
+  <select class="select-filter" id="filterTecnico" onchange="render()">
+    <option value="">Todos los técnicos</option>
+  </select>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar" id="statsBar"></div>
+
+<!-- MAIN -->
+<div class="main" id="mainArea"></div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Nueva visita</div>
+      <button class="btn-close" onclick="cerrarModal()">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Técnico</label>
+        <select id="f-tecnico" onchange="syncTecnicoInput()">
+          <option value="">— Selecciona —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between">
+          <span>O escribe nombre</span>
+        </label>
+        <input type="text" id="f-tecnico-new" placeholder="Nuevo técnico...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha de visita</label>
+        <input type="date" id="f-fecha">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hora (opcional)</label>
+        <input type="time" id="f-hora" placeholder="09:00">
+      </div>
+      <div class="form-group form-full">
+        <label class="form-label">Cliente</label>
+        <input type="text" id="f-cliente" placeholder="Nombre del cliente o empresa">
+      </div>
+      <div class="form-group form-full">
+        <label class="form-label">Dirección / Localización</label>
+        <input type="text" id="f-direccion" placeholder="Calle, nave, ciudad...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Maquinaria</label>
+        <input type="text" id="f-maquina" placeholder="Ej: Elevador 2T, Desmontadora...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de visita</label>
+        <select id="f-tipo">
+          <option>Revisión periódica</option>
+          <option>Reparación</option>
+          <option>Diagnóstico</option>
+          <option>Instalación</option>
+          <option>Urgencia</option>
+          <option>Seguimiento</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono cliente (opcional)</label>
+        <input type="tel" id="f-telefono" placeholder="600 000 000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select id="f-estado">
+          <option value="pendiente">Pendiente</option>
+          <option value="hoy">Hoy</option>
+          <option value="completado">Completada</option>
+        </select>
+      </div>
+      <div class="form-group form-full">
+        <label class="form-label">Notas / Instrucciones</label>
+        <textarea id="f-notas" placeholder="Detalles de la avería, instrucciones para el técnico..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-save" onclick="guardar()">Guardar visita</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-box" id="confirmBox">
+  <div class="confirm-inner">
+    <div class="confirm-title">Eliminar visita</div>
+    <div class="confirm-msg">¿Seguro que quieres eliminar esta visita? No se puede deshacer.</div>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="cerrarConfirm()">Cancelar</button>
+      <button class="btn-confirm-del" onclick="confirmarBorrar()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATOS ──────────────────────────────────────────────────────
+const KEY = 'visitas_tecnicas_v1';
+
+function cargarDatos() {
+  const raw = localStorage.getItem(KEY);
+  if (raw) return JSON.parse(raw);
+  // Datos de ejemplo iniciales
+  const today = hoy();
+  const manana = diasDesde(1);
+  const pasado = diasDesde(2);
+  const ayer = diasDesde(-1);
+  return [
+    { id: 1, tecnico: 'Carlos M.', fecha: today, hora: '09:00', cliente: 'Talleres Ramos', direccion: 'Polígono El Pino, nave 7 — Segovia', maquina: 'Elevador 2 toneladas', tipo: 'Revisión periódica', estado: 'hoy', telefono: '921 123 456', notas: 'Revisar también el sistema hidráulico' },
+    { id: 2, tecnico: 'Ana R.', fecha: today, hora: '11:30', cliente: 'Automoción Norte S.L.', direccion: 'Av. Constitución 44 — Valladolid', maquina: 'Desmontadora de ruedas', tipo: 'Reparación', estado: 'hoy', telefono: '983 456 789', notas: 'Fallo en el brazo extensible' },
+    { id: 3, tecnico: 'Pedro L.', fecha: manana, hora: '', cliente: 'Garage Hermanos Fuentes', direccion: 'C/ Industria 12 — Ávila', maquina: 'Equilibradora', tipo: 'Revisión periódica', estado: 'pendiente', telefono: '', notas: '' },
+    { id: 4, tecnico: 'Carlos M.', fecha: ayer, hora: '10:00', cliente: 'MecánicaFlores', direccion: 'Ctra. N-110 km 3 — Soria', maquina: 'Elevador 4 columnas', tipo: 'Diagnóstico', estado: 'completado', telefono: '975 111 222', notas: 'Revisión terminada, todo correcto' },
+    { id: 5, tecnico: 'Lucía S.', fecha: pasado, hora: '08:00', cliente: 'Taller San Andrés', direccion: 'C/ Real 8 — Salamanca', maquina: 'Prensa hidráulica', tipo: 'Urgencia', estado: 'pendiente', telefono: '923 987 654', notas: 'Avería total, no pueden operar' },
+  ];
+}
+
+function guardarDatos() {
+  localStorage.setItem(KEY, JSON.stringify(visitas));
+}
+
+function hoy() { return new Date().toISOString().split('T')[0]; }
+function diasDesde(n) {
+  const d = new Date(); d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+
+let visitas = cargarDatos();
+let nextId = visitas.reduce((m, v) => Math.max(m, v.id), 0) + 1;
+let filtroActivo = 'todos';
+let vistaActiva = 'grid';
+let editIdx = null;
+let borrarIdx = null;
+
+// ── TECNICOS / COLORES ─────────────────────────────────────────
+const AV_CLASSES = ['av-0','av-1','av-2','av-3','av-4','av-5'];
+const tecColorMap = {};
+let tecColorIdx = 0;
+
+function getAv(nombre) {
+  if (!tecColorMap[nombre]) {
+    tecColorMap[nombre] = AV_CLASSES[tecColorIdx % AV_CLASSES.length];
+    tecColorIdx++;
+  }
+  return tecColorMap[nombre];
+}
+function iniciales(n) {
+  return n.trim().split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function getTecnicos() {
+  return [...new Set(visitas.map(v => v.tecnico).filter(Boolean))].sort();
+}
+
+function actualizarSelectTecnicos() {
+  const sel = document.getElementById('filterTecnico');
+  const val = sel.value;
+  sel.innerHTML = '<option value="">Todos los técnicos</option>';
+  getTecnicos().forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    if (t === val) o.selected = true;
+    sel.appendChild(o);
+  });
+  const fSel = document.getElementById('f-tecnico');
+  if (fSel) {
+    const cur = fSel.value;
+    fSel.innerHTML = '<option value="">— Selecciona existente —</option>';
+    getTecnicos().forEach(t => {
+      const o = document.createElement('option');
+      o.value = t; o.textContent = t;
+      if (t === cur) o.selected = true;
+      fSel.appendChild(o);
+    });
+  }
+}
+
+function syncTecnicoInput() {
+  const sel = document.getElementById('f-tecnico').value;
+  if (sel) document.getElementById('f-tecnico-new').value = '';
+}
+
+// ── ESTADO AUTOMÁTICO ──────────────────────────────────────────
+function calcEstado(fecha) {
+  const h = hoy();
+  if (fecha === h) return 'hoy';
+  if (fecha > h) return 'pendiente';
+  return 'completado';
+}
+
+// ── FORMATO FECHA ──────────────────────────────────────────────
+function fmtFecha(f, hora) {
+  const d = new Date(f + 'T12:00:00');
+  const s = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+  return hora ? s + ' · ' + hora : s;
+}
+
+// ── FILTRADO ───────────────────────────────────────────────────
+function getVisitasFiltradas() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const tec = document.getElementById('filterTecnico').value;
+  return visitas.filter(v => {
+    if (filtroActivo !== 'todos' && v.estado !== filtroActivo) return false;
+    if (tec && v.tecnico !== tec) return false;
+    if (q && ![v.tecnico, v.cliente, v.maquina, v.tipo, v.direccion, v.notas].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => {
+    const ord = { hoy: 0, pendiente: 1, completado: 2 };
+    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
+    return (ord[a.estado] || 0) - (ord[b.estado] || 0);
+  });
+}
+
+// ── STATS ──────────────────────────────────────────────────────
+function renderStats() {
+  const total = visitas.length;
+  const hoyN = visitas.filter(v => v.estado === 'hoy').length;
+  const pend = visitas.filter(v => v.estado === 'pendiente').length;
+  const comp = visitas.filter(v => v.estado === 'completado').length;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-card"><div class="stat-dot" style="background:#888"></div><div class="stat-info"><div class="stat-num">${total}</div><div class="stat-label">Total visitas</div></div></div>
+    <div class="stat-card"><div class="stat-dot" style="background:var(--accent)"></div><div class="stat-info"><div class="stat-num">${hoyN}</div><div class="stat-label">Hoy</div></div></div>
+    <div class="stat-card"><div class="stat-dot" style="background:#C8860A"></div><div class="stat-info"><div class="stat-num">${pend}</div><div class="stat-label">Pendientes</div></div></div>
+    <div class="stat-card"><div class="stat-dot" style="background:var(--green)"></div><div class="stat-info"><div class="stat-num">${comp}</div><div class="stat-label">Completadas</div></div></div>
+  `;
+}
+
+// ── RENDER TARJETAS ────────────────────────────────────────────
+function renderGrid(lista) {
+  if (!lista.length) {
+    document.getElementById('mainArea').innerHTML = '<div class="cards-grid"><div class="empty">No hay visitas que coincidan con los filtros.</div></div>';
+    return;
+  }
+  const isAdmin = document.body.classList.contains('admin-mode');
+  const cards = lista.map(v => {
+    const idx = visitas.indexOf(v);
+    const av = getAv(v.tecnico);
+    const ini = iniciales(v.tecnico);
+    const doneBtns = isAdmin ? `
+      ${v.estado !== 'completado' ? `<button class="btn-sm btn-done" onclick="completar(${idx})">✓ Hecho</button>` : ''}
+      <button class="btn-sm admin-only" onclick="editarVisita(${idx})">Editar</button>
+      <button class="btn-sm btn-del admin-only" onclick="pedirBorrar(${idx})">Borrar</button>
+    ` : '';
+    return `
+    <div class="card">
+      <div class="card-top">
+        <div class="tecnico-row">
+          <div class="avatar ${av}">${ini}</div>
+          <div><div class="tec-name">${v.tecnico}</div><div class="tec-tipo">${v.tipo}</div></div>
+        </div>
+        <span class="estado-badge s-${v.estado}">${estadoLabel(v.estado)}</span>
+      </div>
+      <div class="card-fields">
+        <div class="field-row">
+          <svg class="field-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M4 7h6M4 10h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <div class="field-val" style="font-weight:500">${v.cliente}</div>
+        </div>
+        <div class="field-row">
+          <svg class="field-icon" viewBox="0 0 14 14" fill="none"><path d="M7 1C4.79 1 3 2.79 3 5c0 3.25 4 8 4 8s4-4.75 4-8c0-2.21-1.79-4-4-4z" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="5" r="1.3" stroke="currentColor" stroke-width="1.1"/></svg>
+          <div class="field-val muted">${v.direccion}</div>
+        </div>
+        <div class="field-row">
+          <svg class="field-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 4V3a2.5 2.5 0 015 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span class="machine-chip">${v.maquina}</span>
+        </div>
+        ${v.telefono ? `<div class="field-row">
+          <svg class="field-icon" viewBox="0 0 14 14" fill="none"><path d="M2 2.5C2 2.5 3 4.5 5 6.5c2 2 4 3 5 3l1.5-1.5c0 0-1-1-1.5-1.5-.5-.5-1.5.5-1.5.5s-2-1-2.5-2.5c.5 0 1-.5.5-1.5S5 3 5 3L2 2.5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="field-val muted">${v.telefono}</div>
+        </div>` : ''}
+        ${v.notas ? `<div class="nota-box">${v.notas}</div>` : ''}
+      </div>
+      <div class="card-footer">
+        <span class="fecha-txt">${fmtFecha(v.fecha, v.hora)}</span>
+        <div class="card-actions">${doneBtns}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('mainArea').innerHTML = `<div class="cards-grid">${cards}</div>`;
+}
+
+// ── RENDER LISTA ───────────────────────────────────────────────
+function renderList(lista) {
+  if (!lista.length) {
+    document.getElementById('mainArea').innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text3)">No hay visitas que mostrar.</div>';
+    return;
+  }
+  const isAdmin = document.body.classList.contains('admin-mode');
+  const rows = lista.map(v => {
+    const idx = visitas.indexOf(v);
+    const av = getAv(v.tecnico);
+    const ini = iniciales(v.tecnico);
+    const acciones = isAdmin ? `
+      ${v.estado !== 'completado' ? `<button class="btn-sm btn-done" onclick="completar(${idx})">✓</button>` : ''}
+      <button class="btn-sm" onclick="editarVisita(${idx})">Editar</button>
+      <button class="btn-sm btn-del" onclick="pedirBorrar(${idx})">Borrar</button>
+    ` : `<span style="color:var(--text3);font-size:12px">—</span>`;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar ${av}" style="width:28px;height:28px;font-size:10px">${ini}</div><span style="font-weight:500">${v.tecnico}</span></div></td>
+      <td>${v.cliente}</td>
+      <td style="max-width:180px;color:var(--text2)">${v.direccion}</td>
+      <td><span class="machine-chip">${v.maquina}</span></td>
+      <td>${v.tipo}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${fmtFecha(v.fecha, v.hora)}</td>
+      <td><span class="estado-badge s-${v.estado}">${estadoLabel(v.estado)}</span></td>
+      <td><div style="display:flex;gap:5px">${acciones}</div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('mainArea').innerHTML = `
+    <div class="list-wrap">
+      <table class="list-table">
+        <thead><tr>
+          <th>Técnico</th><th>Cliente</th><th>Dirección</th>
+          <th>Maquinaria</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function estadoLabel(e) {
+  return { hoy: 'Hoy', pendiente: 'Pendiente', completado: 'Completada' }[e] || e;
+}
+
+// ── RENDER PRINCIPAL ───────────────────────────────────────────
+function render() {
+  actualizarSelectTecnicos();
+  renderStats();
+  const lista = getVisitasFiltradas();
+  if (vistaActiva === 'grid') renderGrid(lista);
+  else renderList(lista);
+}
+
+// ── FILTROS ────────────────────────────────────────────────────
+function setFiltro(f, btn) {
+  filtroActivo = f;
+  document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setVista(v, btn) {
+  vistaActiva = v;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────
+function toggleAdmin(el) {
+  if (el.checked) {
+    const pass = prompt('Contraseña de administrador:');
+    if (pass === 'admin1234') {
+      document.body.classList.add('admin-mode');
+      toast('Modo administrador activado');
+    } else {
+      el.checked = false;
+      if (pass !== null) alert('Contraseña incorrecta');
+    }
+  } else {
+    document.body.classList.remove('admin-mode');
+  }
+  render();
+}
+
+// ── MODAL ──────────────────────────────────────────────────────
+function abrirModal(idx) {
+  editIdx = (idx !== undefined) ? idx : null;
+  actualizarSelectTecnicos();
+  const todayStr = hoy();
+  if (editIdx !== null) {
+    const v = visitas[editIdx];
+    document.getElementById('modalTitle').textContent = 'Editar visita';
+    document.getElementById('f-tecnico').value = v.tecnico;
+    document.getElementById('f-tecnico-new').value = '';
+    document.getElementById('f-fecha').value = v.fecha;
+    document.getElementById('f-hora').value = v.hora || '';
+    document.getElementById('f-cliente').value = v.cliente;
+    document.getElementById('f-direccion').value = v.direccion;
+    document.getElementById('f-maquina').value = v.maquina;
+    document.getElementById('f-tipo').value = v.tipo;
+    document.getElementById('f-estado').value = v.estado;
+    document.getElementById('f-telefono').value = v.telefono || '';
+    document.getElementById('f-notas').value = v.notas;
+  } else {
+    document.getElementById('modalTitle').textContent = 'Nueva visita';
+    document.getElementById('f-tecnico').value = '';
+    document.getElementById('f-tecnico-new').value = '';
+    document.getElementById('f-fecha').value = todayStr;
+    document.getElementById('f-hora').value = '';
+    document.getElementById('f-cliente').value = '';
+    document.getElementById('f-direccion').value = '';
+    document.getElementById('f-maquina').value = '';
+    document.getElementById('f-tipo').value = 'Revisión periódica';
+    document.getElementById('f-estado').value = 'hoy';
+    document.getElementById('f-telefono').value = '';
+    document.getElementById('f-notas').value = '';
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+
+function cerrarModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function guardar() {
+  const tecSelect = document.getElementById('f-tecnico').value;
+  const tecNew = document.getElementById('f-tecnico-new').value.trim();
+  const tecnico = tecNew || tecSelect;
+  const fecha = document.getElementById('f-fecha').value;
+  const hora = document.getElementById('f-hora').value;
+  const cliente = document.getElementById('f-cliente').value.trim();
+  const direccion = document.getElementById('f-direccion').value.trim();
+  const maquina = document.getElementById('f-maquina').value.trim();
+  const tipo = document.getElementById('f-tipo').value;
+  const estado = document.getElementById('f-estado').value;
+  const telefono = document.getElementById('f-telefono').value.trim();
+  const notas = document.getElementById('f-notas').value.trim();
+
+  if (!tecnico) { alert('Indica el nombre del técnico.'); return; }
+  if (!fecha) { alert('Selecciona la fecha.'); return; }
+  if (!cliente) { alert('Escribe el nombre del cliente.'); return; }
+  if (!direccion) { alert('Escribe la dirección.'); return; }
+  if (!maquina) { alert('Indica la maquinaria.'); return; }
+
+  const obj = { id: editIdx !== null ? visitas[editIdx].id : nextId++, tecnico, fecha, hora, cliente, direccion, maquina, tipo, estado, telefono, notas };
+
+  if (editIdx !== null) {
+    visitas[editIdx] = obj;
+    toast('Visita actualizada');
+  } else {
+    visitas.push(obj);
+    toast('Visita creada');
+  }
+  guardarDatos();
+  cerrarModal();
+  render();
+}
+
+// ── COMPLETAR ──────────────────────────────────────────────────
+function completar(idx) {
+  visitas[idx].estado = 'completado';
+  guardarDatos();
+  toast('Marcada como completada');
+  render();
+}
+
+// ── BORRAR ─────────────────────────────────────────────────────
+function pedirBorrar(idx) {
+  borrarIdx = idx;
+  document.getElementById('confirmBox').classList.add('open');
+}
+function cerrarConfirm() {
+  document.getElementById('confirmBox').classList.remove('open');
+  borrarIdx = null;
+}
+function confirmarBorrar() {
+  if (borrarIdx !== null) {
+    visitas.splice(borrarIdx, 1);
+    guardarDatos();
+    toast('Visita eliminada');
+    render();
+  }
+  cerrarConfirm();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── CERRAR AL CLICK FUERA ──────────────────────────────────────
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModal();
+});
+document.getElementById('confirmBox').addEventListener('click', function(e) {
+  if (e.target === this) cerrarConfirm();
+});
+
+// ── INIT ───────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
