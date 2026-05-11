@@ -23,6 +23,8 @@
     --amber-bg: #FFF3D6;
     --red: #9B2424;
     --red-bg: #FDE8E8;
+    --purple: #6B3FA0;
+    --purple-bg: #F0E8FC;
     --radius: 10px;
     --radius-lg: 14px;
   }
@@ -83,6 +85,7 @@
   .s-hoy { background: var(--accent-bg); color: var(--accent); }
   .s-pendiente { background: var(--amber-bg); color: var(--amber); }
   .s-completado { background: var(--green-bg); color: var(--green); }
+  .s-aviso { background: var(--purple-bg); color: var(--purple); }
 
   .card-fields { display: flex; flex-direction: column; gap: 7px; }
   .field-row { display: flex; gap: 8px; align-items: flex-start; }
@@ -210,6 +213,7 @@
     <button class="f-btn" onclick="setFiltro('hoy',this)">Hoy</button>
     <button class="f-btn" onclick="setFiltro('pendiente',this)">Pendientes</button>
     <button class="f-btn" onclick="setFiltro('completado',this)">Completadas</button>
+    <button class="f-btn" onclick="setFiltro('aviso',this)">Avisos</button>
   </div>
   <select class="select-filter" id="filterTecnico" onchange="render()">
     <option value="">Todos los técnicos</option>
@@ -278,6 +282,7 @@
           <option value="pendiente">Pendiente</option>
           <option value="hoy">Hoy</option>
           <option value="completado">Completada</option>
+          <option value="aviso">Aviso (sin fecha)</option>
         </select>
       </div>
       <div class="form-group form-full">
@@ -354,7 +359,7 @@ function fmtFecha(f, h) {
   const s = d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
   return h ? s+' · '+h : s;
 }
-function estadoLabel(e) { return {hoy:'Hoy',pendiente:'Pendiente',completado:'Completada'}[e]||e; }
+function estadoLabel(e) { return {hoy:'Hoy',pendiente:'Pendiente',completado:'Completada',aviso:'Aviso'}[e]||e; }
 function getTecnicos() { return [...new Set(visitas.map(v=>v.tecnico).filter(Boolean))].sort(); }
 
 function syncTecnicoInput() {
@@ -396,11 +401,13 @@ function renderStats() {
   const hoyN = visitas.filter(v=>v.estado==='hoy').length;
   const pend = visitas.filter(v=>v.estado==='pendiente').length;
   const comp = visitas.filter(v=>v.estado==='completado').length;
+  const avis = visitas.filter(v=>v.estado==='aviso').length;
   document.getElementById('statsBar').innerHTML = `
     <div class="stat-card"><div class="stat-dot" style="background:#888"></div><div class="stat-info"><div class="stat-num">${total}</div><div class="stat-label">Total visitas</div></div></div>
     <div class="stat-card"><div class="stat-dot" style="background:var(--accent)"></div><div class="stat-info"><div class="stat-num">${hoyN}</div><div class="stat-label">Hoy</div></div></div>
     <div class="stat-card"><div class="stat-dot" style="background:#C8860A"></div><div class="stat-info"><div class="stat-num">${pend}</div><div class="stat-label">Pendientes</div></div></div>
-    <div class="stat-card"><div class="stat-dot" style="background:var(--green)"></div><div class="stat-info"><div class="stat-num">${comp}</div><div class="stat-label">Completadas</div></div></div>`;
+    <div class="stat-card"><div class="stat-dot" style="background:var(--green)"></div><div class="stat-info"><div class="stat-num">${comp}</div><div class="stat-label">Completadas</div></div></div>
+    <div class="stat-card"><div class="stat-dot" style="background:var(--purple)"></div><div class="stat-info"><div class="stat-num">${avis}</div><div class="stat-label">Avisos</div></div></div>`;
 }
 
 function renderGrid(lista) {
@@ -425,7 +432,7 @@ function renderGrid(lista) {
         ${v.notas?`<div class="nota-box">${v.notas}</div>`:''}
       </div>
       <div class="card-footer">
-        <span class="fecha-txt">${fmtFecha(v.fecha,v.hora)}</span>
+        <span class="fecha-txt">${v.fecha ? fmtFecha(v.fecha,v.hora) : '— Sin fecha —'}</span>
         <div class="card-actions">${btns}</div>
       </div>
     </div>`;
@@ -439,7 +446,7 @@ function renderList(lista) {
   const rows = lista.map(v => {
     const av=getAv(v.tecnico); const ini=iniciales(v.tecnico);
     const acc = isAdmin ? `${v.estado!=='completado'?`<button class="btn-sm btn-done" onclick="completar(${v.id})">✓</button>`:''}<button class="btn-sm" onclick="editarVisita(${v.id})">Editar</button><button class="btn-sm btn-del" onclick="pedirBorrar(${v.id})">Borrar</button>` : '—';
-    return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar ${av}" style="width:28px;height:28px;font-size:10px">${ini}</div><span style="font-weight:500">${v.tecnico}</span></div></td><td>${v.cliente}</td><td style="max-width:160px;color:var(--text2)">${v.direccion}</td><td><span class="machine-chip">${v.maquina}</span></td><td>${v.tipo}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${fmtFecha(v.fecha,v.hora)}</td><td><span class="estado-badge s-${v.estado}">${estadoLabel(v.estado)}</span></td><td><div style="display:flex;gap:5px">${acc}</div></td></tr>`;
+    return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar ${av}" style="width:28px;height:28px;font-size:10px">${ini}</div><span style="font-weight:500">${v.tecnico}</span></div></td><td>${v.cliente}</td><td style="max-width:160px;color:var(--text2)">${v.direccion}</td><td><span class="machine-chip">${v.maquina}</span></td><td>${v.tipo}</td><td style="font-family:'DM Mono',monospace;font-size:12px">${v.fecha ? fmtFecha(v.fecha,v.hora) : '— Sin fecha —'}</td><td><span class="estado-badge s-${v.estado}">${estadoLabel(v.estado)}</span></td><td><div style="display:flex;gap:5px">${acc}</div></td></tr>`;
   }).join('');
   document.getElementById('mainArea').innerHTML = `<div class="list-wrap"><table class="list-table"><thead><tr><th>Técnico</th><th>Cliente</th><th>Dirección</th><th>Maquinaria</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -512,7 +519,8 @@ async function guardar() {
   const telefono = document.getElementById('f-telefono').value.trim();
   const notas = document.getElementById('f-notas').value.trim();
   if (!tecnico) { alert('Indica el técnico.'); return; }
-  if (!fecha||!cliente||!direccion||!maquina) { alert('Rellena fecha, cliente, dirección y maquinaria.'); return; }
+  if (!cliente||!direccion||!maquina) { alert('Rellena cliente, dirección y maquinaria.'); return; }
+  if (estado!=='aviso' && !fecha) { alert('Indica la fecha de visita.'); return; }
   const obj = {tecnico,fecha,hora,cliente,direccion,maquina,tipo,estado,telefono,notas};
   try {
     if (editId) { await dbUpdate(editId,obj); toast('Visita actualizada'); }
